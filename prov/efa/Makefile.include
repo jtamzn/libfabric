@@ -64,6 +64,7 @@ _efa_files = \
 	prov/efa/src/rxr/rxr_op_entry.c \
 	prov/efa/src/rxr/rxr_atomic.c
 
+
 _efa_headers = \
 	prov/efa/src/efa.h \
 	prov/efa/src/efa_mr.h \
@@ -91,6 +92,13 @@ _efa_headers = \
 	prov/efa/src/rxr/rxr_atomic.h \
 	prov/efa/src/rxr/rxr_op_entry.h \
 	prov/efa/src/rxr/rdm_proto_v4.h
+	
+
+if INCLUDE_LTTNG
+_efa_files += prov/efa/src/tracing/efa-tp.c
+_efa_headers += prov/efa/src/tracing/efa-tp.h
+efa_LDFLAGS += -llttng-ust
+endif INCLUDE_LTTNG
 
 
 if ENABLE_EFA_UNIT_TEST

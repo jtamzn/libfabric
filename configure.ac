@@ -636,6 +636,25 @@ AS_IF([test "$have_ze" = "1" && test x"$with_ze" != x"yes"],
       [CPPFLAGS="$CPPFLAGS $ze_CPPFLAGS"
        LDFLAGS="$LDFLAGS $ze_LDFLAGS"])
 
+dnl Check for LTTNG tracking capability
+have_lttng=0
+AC_ARG_WITH([lttng],
+    AS_HELP_STRING([--with-lttng],
+		   [Enable tracing capability with LTTNG @<:@default=no@:>@]))
+
+if test "$with_lttng" != "" && test "$with_lttng" != "no"; then
+	AC_DEFINE([INCLUDE_LTTNG], 1,
+		  [Define to 1 to enable tracing capability with lttng])
+	if test -d $with_lttng; then
+		CPPFLAGS="$CPPFLAGS -I$with_lttng/include"
+		LDFLAGS="$LDFLAGS -L$with_lttng/lib -llttng-ust"
+		have_lttng=1
+	fi
+fi
+AM_CONDITIONAL([INCLUDE_LTTNG], test "$have_lttng" -eq 1)
+AC_DEFINE_UNQUOTED([ENABLE_LTTNG_TRACING], [$have_lttng], [Build with LTTNG tracing])
+
+
 dnl Check for AWS Neuron runtime library for Neuron device support
 have_neuron=0
 AC_ARG_WITH([neuron],
