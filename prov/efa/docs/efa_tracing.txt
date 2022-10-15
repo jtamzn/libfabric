@@ -1,0 +1,16 @@
+QUICK INSTRUCTION ABOUT TRACING (DEVELOPMENT)
+
+1. Install lttng according to doc here: https://lttng.org/docs/v2.13/#doc-building-from-source. A couple of notes
+    - Install to a shared location like /fsx
+    - Use --disable-numa if you'd like to skip numactl
+    - Install URCU and LTTNG in same prefix. After install URCU, export PKG_CONFIG_PATH to include its .pc before building LTTNG
+
+2. Build libfabric with LTTNG using --with-lttng=<lttng_prefix>.
+    - This branch will enforce including lttng with a macro of #error, this is temporary to ensure we're indeed tracing
+    - The macro is INCLUDE_LTTNG
+    
+3. Build fabtests as normal.
+
+LIST OF TRACING POINT
+file:lineno func [tracepoint(field1, field2, ...., fieldN)]
+rxr_msg.c:328 rxr_msg_generic_send [efa_tp_rxr_msg_send_begin(msg_id, tx_id, rx_id, total_len)]

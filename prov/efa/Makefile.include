@@ -95,8 +95,8 @@ _efa_headers = \
 	
 
 if INCLUDE_LTTNG
-_efa_files += prov/efa/src/tracing/efa-tp.c
-_efa_headers += prov/efa/src/tracing/efa-tp.h
+_efa_files += prov/efa/src/rxr/efa-tp.c
+_efa_headers += prov/efa/src/rxr/efa-tp.h
 efa_LDFLAGS += -llttng-ust
 endif INCLUDE_LTTNG
 
