@@ -326,6 +326,7 @@ ssize_t rxr_msg_generic_send(struct fid_ep *ep, const struct fi_msg *msg,
 	tx_entry->msg_id = peer->next_msg_id++;
 #ifdef INCLUDE_LTTNG
 	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_msg_send_begin, tx_entry->msg_id, tx_entry->tx_id, tx_entry->rx_id, tx_entry->total_len);
+	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_msg_send_begin_msg_context, (size_t) msg->context, (size_t) msg->addr);
 #endif
 	err = rxr_msg_post_rtm(rxr_ep, tx_entry, use_p2p);
 	if (OFI_UNLIKELY(err)) {
@@ -1113,6 +1114,11 @@ ssize_t rxr_msg_generic_recv(struct fid_ep *ep, const struct fi_msg *msg,
 	       "%s: iov_len: %lu tag: %lx ignore: %lx op: %x flags: %lx\n",
 	       __func__, rx_entry->total_len, tag, ignore,
 	       op, flags);
+
+#ifdef INCLUDE_LTTNG
+	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_msg_recv_begin, rx_entry->msg_id, rx_entry->tx_id, rx_entry->rx_id, rx_entry->total_len);
+	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_msg_recv_begin_msg_context, (size_t) msg->context, (size_t) msg->addr);
+#endif
 
 	if (rxr_ep->use_zcpy_rx) {
 		ret = rxr_ep_post_user_recv_buf(rxr_ep, rx_entry, flags);
