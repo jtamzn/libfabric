@@ -43,6 +43,12 @@
 #include "rxr_msg.h"
 #include "rxr_pkt_cmd.h"
 
+#ifdef INCLUDE_LTTNG
+#define LTTNG_UST_TRACEPOINT_DEFINE
+#include "efa-tp.h"
+#else
+#error LTTNG macro is wrong.
+#endif
 /**
  * This file define the msg ops functions.
  * It is consisted of the following sections:
@@ -318,6 +324,9 @@ ssize_t rxr_msg_generic_send(struct fid_ep *ep, const struct fi_msg *msg,
 	assert(tx_entry->op == ofi_op_msg || tx_entry->op == ofi_op_tagged);
 
 	tx_entry->msg_id = peer->next_msg_id++;
+#ifdef INCLUDE_LTTNG
+	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_msg_send_begin, tx_entry->msg_id, tx_entry->tx_id, tx_entry->rx_id, tx_entry->total_len);
+#endif
 	err = rxr_msg_post_rtm(rxr_ep, tx_entry, use_p2p);
 	if (OFI_UNLIKELY(err)) {
 		rxr_release_tx_entry(rxr_ep, tx_entry);
