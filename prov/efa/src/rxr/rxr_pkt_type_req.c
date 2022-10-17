@@ -41,6 +41,12 @@
 #include "rxr_pkt_type_base.h"
 #include "rxr_read.h"
 
+#ifdef INCLUDE_LTTNG
+#include "efa_tp.h"
+#else
+#error You must enable lttng on this branch
+#endif
+
 /*
  * Utility constants and funnctions shared by all REQ packe
  * types.
@@ -1146,6 +1152,9 @@ struct rxr_rx_entry *rxr_pkt_get_msgrtm_rx_entry(struct rxr_ep *ep,
 
 	} else {
 		rx_entry = rxr_pkt_get_rtm_matched_rx_entry(ep, match, *pkt_entry_ptr);
+#ifdef INCLUDE_LTTNG
+		lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_pkt_match_expected_nontagged, rx_entry->msg_id, rx_entry->tx_id, rx_entry->rx_id, rx_entry->total_len);
+#endif
 	}
 
 	pkt_type = rxr_get_base_hdr((*pkt_entry_ptr)->pkt)->type;
@@ -1183,6 +1192,9 @@ struct rxr_rx_entry *rxr_pkt_get_tagrtm_rx_entry(struct rxr_ep *ep,
 		}
 	} else {
 		rx_entry = rxr_pkt_get_rtm_matched_rx_entry(ep, match, *pkt_entry_ptr);
+#ifdef INCLUDE_LTTNG
+		lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_pkt_match_expected_tagged, rx_entry->msg_id, rx_entry->tx_id, rx_entry->rx_id, rx_entry->total_len);
+#endif
 	}
 
 	pkt_type = rxr_get_base_hdr((*pkt_entry_ptr)->pkt)->type;

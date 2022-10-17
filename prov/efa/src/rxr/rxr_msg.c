@@ -899,7 +899,7 @@ int rxr_msg_proc_unexp_msg_list(struct rxr_ep *ep, const struct fi_msg *msg,
 	 * NOTE: Cannot trigger this routine, didn't debug.
 	 */
 #ifdef INCLUDE_LTTNG
-
+	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_msg_match_unexpected, rx_entry->msg_id, rx_entry->tx_id, rx_entry->rx_id, rx_entry->total_len, (int) tag, msg->addr);
 #endif
 
 	/*

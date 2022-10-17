@@ -45,7 +45,7 @@
 #include "rxr_pkt_cmd.h"
 
 #ifdef INCLUDE_LTTNG
-#include "efa-tp.h"
+#include "efa_tp.h"
 #else
 #error You must enable --with-lttng in this branch
 #endif
