@@ -1220,6 +1220,9 @@ ssize_t rxr_pkt_proc_matched_longread_rtm(struct rxr_ep *ep,
 	       rx_entry->rma_iov_count * sizeof(struct fi_rma_iov));
 
 	rxr_pkt_entry_release_rx(ep, pkt_entry);
+#ifdef INCLUDE_LTTNG
+	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_pkt_longread_begin, rx_entry->msg_id, rx_entry->tx_id, rx_entry->rx_id, rx_entry->total_len);
+#endif
 	return rxr_read_post_remote_read_or_queue(ep, rx_entry);
 }
 
@@ -1247,6 +1250,9 @@ ssize_t rxr_pkt_proc_matched_mulreq_rtm(struct rxr_ep *ep,
 			read_iov = (struct fi_rma_iov *)((char *)pkt_entry->pkt + rxr_pkt_req_hdr_size(pkt_entry));
 			rx_entry->rma_iov_count = runtread_rtm_hdr->read_iov_count;
 			memcpy(rx_entry->rma_iov, read_iov, rx_entry->rma_iov_count * sizeof(struct fi_rma_iov));
+#ifdef INCLUDE_LTTNG
+			lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_pkt_runtingread_begin, rx_entry->msg_id, rx_entry->tx_id, rx_entry->rx_id, rx_entry->total_len);
+#endif
 			err = rxr_read_post_remote_read_or_queue(ep, rx_entry);
 			if (err)
 				return err;

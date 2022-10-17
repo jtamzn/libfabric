@@ -151,6 +151,47 @@ LTTNG_UST_TRACEPOINT_EVENT(
 )
 LTTNG_UST_TRACEPOINT_LOGLEVEL(fi_efa_prov, efa_tp_rxr_pkt_match_expected_tagged, LTTNG_UST_TRACEPOINT_LOGLEVEL_INFO)
 
+LTTNG_UST_TRACEPOINT_EVENT(
+	fi_efa_prov,
+	efa_tp_rxr_pkt_longread_begin,
+	LTTNG_UST_TP_ARGS(
+		X_ENTRY_ARGS
+	),
+	LTTNG_UST_TP_FIELDS(
+		X_ENTRY_FIELDS
+	)
+)
+LTTNG_UST_TRACEPOINT_LOGLEVEL(fi_efa_prov, efa_tp_rxr_pkt_longread_begin, LTTNG_UST_TRACEPOINT_LOGLEVEL_INFO)
+
+LTTNG_UST_TRACEPOINT_EVENT(
+	fi_efa_prov,
+	efa_tp_rxr_pkt_runtingread_begin,
+	LTTNG_UST_TP_ARGS(
+		X_ENTRY_ARGS
+	),
+	LTTNG_UST_TP_FIELDS(
+		X_ENTRY_FIELDS
+	)
+)
+LTTNG_UST_TRACEPOINT_LOGLEVEL(fi_efa_prov, efa_tp_rxr_pkt_runtingread_begin, LTTNG_UST_TRACEPOINT_LOGLEVEL_INFO)
+
+LTTNG_UST_TRACEPOINT_EVENT(
+	fi_efa_prov,
+	efa_tp_rxr_pkt_read_completion,
+	LTTNG_UST_TP_ARGS(
+		char*, entry_name,
+		X_ENTRY_ARGS,
+		size_t, context
+	),
+	LTTNG_UST_TP_FIELDS(
+		lttng_ust_field_string(entry_name, entry_name)
+		X_ENTRY_FIELDS
+		lttng_ust_field_integer(size_t, context, context)
+	)
+)
+LTTNG_UST_TRACEPOINT_LOGLEVEL(fi_efa_prov, efa_tp_rxr_pkt_read_completion, LTTNG_UST_TRACEPOINT_LOGLEVEL_INFO)
+
+
 #endif
 
 #include <lttng/tracepoint-event.h>

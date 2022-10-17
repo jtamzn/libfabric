@@ -39,6 +39,12 @@
 #include "rxr_pkt_type_base.h"
 #include "rxr_read.h"
 
+#ifdef INCLUDE_LTTNG
+#include "efa_tp.h"
+#else
+#error You must enable lttng on this branch
+#endif
+
 /* This file define functons for the following packet type:
  *       HANDSHAKE
  *       CTS
@@ -410,7 +416,14 @@ void rxr_pkt_handle_rma_read_completion(struct rxr_ep *ep,
 			rxr_cq_write_tx_completion(ep, tx_entry);
 			rxr_release_tx_entry(ep, tx_entry);
 		} else if (read_entry->context_type == RXR_READ_CONTEXT_RX_ENTRY) {
+			// TODO: Shall we trace read_entry or rx_entry?
+#ifdef INCLUDE_LTTNG
+			lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_pkt_read_completion, "read_entry", -1, -1, read_entry->read_id, read_entry->total_len, (size_t) read_entry->context);
+#endif
 			rx_entry = read_entry->context;
+#ifdef INCLUDE_LTTNG
+			lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_pkt_read_completion, "rx_entry_in_read", rx_entry->msg_id, rx_entry->tx_id, rx_entry->rx_id, rx_entry->total_len, 0);
+#endif			
 			err = rxr_pkt_post_or_queue(ep, rx_entry, RXR_EOR_PKT, false);
 			if (OFI_UNLIKELY(err)) {
 				FI_WARN(&rxr_prov, FI_LOG_CQ,
