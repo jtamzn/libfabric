@@ -43,12 +43,8 @@
 #include "rxr_msg.h"
 #include "rxr_pkt_cmd.h"
 
-#ifdef INCLUDE_LTTNG
-#define LTTNG_UST_TRACEPOINT_DEFINE
 #include "efa_tp.h"
-#else
-#error LTTNG macro is wrong.
-#endif
+
 /**
  * This file define the msg ops functions.
  * It is consisted of the following sections:
@@ -324,10 +320,12 @@ ssize_t rxr_msg_generic_send(struct fid_ep *ep, const struct fi_msg *msg,
 	assert(tx_entry->op == ofi_op_msg || tx_entry->op == ofi_op_tagged);
 
 	tx_entry->msg_id = peer->next_msg_id++;
-#ifdef INCLUDE_LTTNG
-	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_msg_send_begin, tx_entry->msg_id, tx_entry->tx_id, tx_entry->rx_id, tx_entry->total_len);
-	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_msg_send_begin_msg_context, (size_t) msg->context, (size_t) msg->addr);
-#endif
+
+	// efa_tracing(efa_tp_rxr_msg_send_begin, tx_entry->msg_id, (size_t) tx_entry->cq_entry.op_context, tx_entry->total_len);
+	efa_tracing(efa_tp_rxr_msg_send_begin, tx_entry->msg_id, (size_t) tx_entry->cq_entry.op_context, tx_entry->total_len);
+	efa_tracing(efa_tp_rxr_msg_send_begin_msg_context, (size_t) msg->context, (size_t) msg->addr);
+
+
 	err = rxr_msg_post_rtm(rxr_ep, tx_entry, use_p2p);
 	if (OFI_UNLIKELY(err)) {
 		rxr_release_tx_entry(rxr_ep, tx_entry);
@@ -898,10 +896,7 @@ int rxr_msg_proc_unexp_msg_list(struct rxr_ep *ep, const struct fi_msg *msg,
 	 * TODO: Use a realiable way to trigger this function. Can we swap packet order with fake-rdma-core?
 	 * NOTE: Cannot trigger this routine, didn't debug.
 	 */
-#ifdef INCLUDE_LTTNG
-	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_msg_match_unexpected, rx_entry->msg_id, rx_entry->tx_id, rx_entry->rx_id, rx_entry->total_len, (int) tag, msg->addr);
-#endif
-
+	efa_tracing(efa_tp_rxr_msg_match_unexpected, rx_entry->msg_id, (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len, (int) tag, msg->addr);
 	/*
 	 * Initialize the matched entry as a multi-recv consumer if the posted
 	 * buffer is a multi-recv buffer.
@@ -1123,10 +1118,8 @@ ssize_t rxr_msg_generic_recv(struct fid_ep *ep, const struct fi_msg *msg,
 	       __func__, rx_entry->total_len, tag, ignore,
 	       op, flags);
 
-#ifdef INCLUDE_LTTNG
-	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_msg_recv_begin, rx_entry->msg_id, rx_entry->tx_id, rx_entry->rx_id, rx_entry->total_len);
-	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_msg_recv_begin_msg_context, (size_t) msg->context, (size_t) msg->addr);
-#endif
+	efa_tracing(efa_tp_rxr_msg_recv_begin, rx_entry->msg_id, (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len);
+	efa_tracing(efa_tp_rxr_msg_recv_begin_msg_context, (size_t) msg->context, (size_t) msg->addr);
 
 	if (rxr_ep->use_zcpy_rx) {
 		ret = rxr_ep_post_user_recv_buf(rxr_ep, rx_entry, flags);

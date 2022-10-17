@@ -44,11 +44,7 @@
 #include "rxr_atomic.h"
 #include "rxr_pkt_cmd.h"
 
-#ifdef INCLUDE_LTTNG
 #include "efa_tp.h"
-#else
-#error You must enable --with-lttng in this branch
-#endif
 
 static const char *rxr_cq_strerror(struct fid_cq *cq_fid, int prov_errno,
 				   const void *err_data, char *buf, size_t len)
@@ -405,11 +401,10 @@ void rxr_cq_write_rx_completion(struct rxr_ep *ep,
 		       rx_entry->addr, rx_entry->rx_id, rx_entry->msg_id,
 		       rx_entry->cq_entry.tag, rx_entry->total_len);
 
-#ifdef INCLUDE_LTTNG
-	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_msg_recv_end, 
-			     rx_entry->msg_id, rx_entry->tx_id, rx_entry->rx_id, 
-			     rx_entry->total_len, rx_entry->cq_entry.tag, rx_entry->addr);
-#endif
+		efa_tracing(efa_tp_rxr_msg_recv_end, 
+			    rx_entry->msg_id, (size_t) rx_entry->cq_entry.op_context, 
+			    rx_entry->total_len, rx_entry->cq_entry.tag, rx_entry->addr);
+
 
 		if (ep->util_ep.caps & FI_SOURCE)
 			ret = ofi_cq_write_src(rx_cq,
@@ -763,11 +758,10 @@ void rxr_cq_write_tx_completion(struct rxr_ep *ep,
 		       tx_entry->addr, tx_entry->tx_id, tx_entry->msg_id,
 		       tx_entry->cq_entry.tag, tx_entry->total_len);
 
-#ifdef INCLUDE_LTTNG
-	lttng_ust_tracepoint(fi_efa_prov, efa_tp_rxr_msg_send_end, 
-			     tx_entry->msg_id, tx_entry->tx_id, tx_entry->rx_id, 
-			     tx_entry->total_len, tx_entry->cq_entry.tag, tx_entry->addr);
-#endif
+
+	efa_tracing(efa_tp_rxr_msg_send_end, 
+		    tx_entry->msg_id, (size_t) tx_entry->cq_entry.op_context, 
+		    tx_entry->total_len, tx_entry->cq_entry.tag, tx_entry->addr);
 
 		/* TX completions should not send peer address to util_cq */
 		if (ep->util_ep.caps & FI_SOURCE)

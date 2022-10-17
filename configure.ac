@@ -652,7 +652,7 @@ if test "$with_lttng" != "" && test "$with_lttng" != "no"; then
 	fi
 fi
 AM_CONDITIONAL([INCLUDE_LTTNG], test "$have_lttng" -eq 1)
-AC_DEFINE_UNQUOTED([ENABLE_LTTNG_TRACING], [$have_lttng], [Build with LTTNG tracing])
+AC_DEFINE_UNQUOTED([INCLUDE_LTTNG], [$have_lttng], [Build with LTTNG tracing])
 
 
 dnl Check for AWS Neuron runtime library for Neuron device support
