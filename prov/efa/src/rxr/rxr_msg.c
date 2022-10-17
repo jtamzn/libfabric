@@ -45,7 +45,7 @@
 
 #ifdef INCLUDE_LTTNG
 #define LTTNG_UST_TRACEPOINT_DEFINE
-#include "efa-tp.h"
+#include "efa_tp.h"
 #else
 #error LTTNG macro is wrong.
 #endif
@@ -893,6 +893,14 @@ int rxr_msg_proc_unexp_msg_list(struct rxr_ep *ep, const struct fi_msg *msg,
 	rx_entry = rxr_msg_find_unexp_rx_entry(ep, msg->addr, tag, ignore, op, claim);
 	if (!rx_entry)
 		return -FI_ENOMSG;
+
+	/* 
+	 * TODO: Use a realiable way to trigger this function. Can we swap packet order with fake-rdma-core?
+	 * NOTE: Cannot trigger this routine, didn't debug.
+	 */
+#ifdef INCLUDE_LTTNG
+
+#endif
 
 	/*
 	 * Initialize the matched entry as a multi-recv consumer if the posted

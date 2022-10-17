@@ -2,7 +2,7 @@
 #define LTTNG_UST_TRACEPOINT_PROVIDER fi_efa_prov
 
 #undef LTTNG_UST_TRACEPOINT_INCLUDE
-#define LTTNG_UST_TRACEPOINT_INCLUDE "rxr/efa-tp.h"
+#define LTTNG_UST_TRACEPOINT_INCLUDE "rxr/efa_tp.h"
 
 #if !defined(_EFA_TP_H) || defined(LTTNG_UST_TRACEPOINT_HEADER_MULTI_READ)
 #define _EFA_TP_H
