@@ -1130,6 +1130,8 @@ struct rxr_op_entry *rxr_pkt_get_msgrtm_rx_entry(struct rxr_ep *ep,
 	dlist_func_t *match_func;
 	int pkt_type;
 
+	size_t wr_id = (size_t)(*pkt_entry_ptr);
+
 	if ((*pkt_entry_ptr)->alloc_type == RXR_PKT_FROM_USER_BUFFER) {
 		/* If a pkt_entry is constructred from user supplied buffer,
 		 * the endpoint must be in zero copy receive mode.
@@ -1163,11 +1165,11 @@ struct rxr_op_entry *rxr_pkt_get_msgrtm_rx_entry(struct rxr_ep *ep,
 			efa_eq_write_error(&ep->base_ep.util_ep, FI_ENOBUFS, FI_EFA_ERR_RX_ENTRIES_EXHAUSTED);
 			return NULL;
 		}
-		rxr_tracepoint(msg_recv_unexpected_nontagged, rx_entry->msg_id,
+		rxr_tracepoint(msg_recv_unexpected_nontagged, wr_id, (size_t) rx_entry, rx_entry->msg_id,
 			    (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len);
 	} else {
 		rx_entry = rxr_pkt_get_rtm_matched_rx_entry(ep, match, *pkt_entry_ptr);
-		rxr_tracepoint(msg_match_expected_nontagged, rx_entry->msg_id,
+		rxr_tracepoint(msg_match_expected_nontagged, wr_id, (size_t) rx_entry, rx_entry->msg_id,
 			    (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len);
 	}
 
@@ -1187,6 +1189,8 @@ struct rxr_op_entry *rxr_pkt_get_tagrtm_rx_entry(struct rxr_ep *ep,
 	dlist_func_t *match_func;
 	int pkt_type;
 
+	size_t wr_id = (size_t)(*pkt_entry_ptr);
+
 	if (ep->base_ep.util_ep.caps & FI_DIRECTED_RECV)
 		match_func = &rxr_pkt_rtm_match_trecv;
 	else
@@ -1204,13 +1208,13 @@ struct rxr_op_entry *rxr_pkt_get_tagrtm_rx_entry(struct rxr_ep *ep,
 			efa_eq_write_error(&ep->base_ep.util_ep, FI_ENOBUFS, FI_EFA_ERR_RX_ENTRIES_EXHAUSTED);
 			return NULL;
 		}
-		rxr_tracepoint(msg_recv_unexpected_tagged, rx_entry->msg_id,
-			    (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len,
-			    (int) rx_entry->tag, (size_t) rx_entry->addr);
+		rxr_tracepoint(msg_recv_unexpected_tagged, wr_id, (size_t) rx_entry, rx_entry->msg_id,
+			       (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len,
+			       (int) rx_entry->tag, (size_t) rx_entry->addr);
 	} else {
 		rx_entry = rxr_pkt_get_rtm_matched_rx_entry(ep, match, *pkt_entry_ptr);
-		rxr_tracepoint(msg_match_expected_tagged, rx_entry->msg_id,
-			    (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len);
+		rxr_tracepoint(msg_match_expected_tagged, wr_id, (size_t) rx_entry, rx_entry->msg_id,
+			       (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len);
 	}
 
 	pkt_type = rxr_get_base_hdr((*pkt_entry_ptr)->wiredata)->type;
@@ -1228,8 +1232,8 @@ ssize_t rxr_pkt_proc_matched_longread_rtm(struct rxr_ep *ep,
 	struct fi_rma_iov *read_iov;
 
 	rtm_hdr = rxr_get_longread_rtm_base_hdr(pkt_entry->wiredata);
-	read_iov = (struct fi_rma_iov *)(pkt_entry->wiredata +
-									rxr_pkt_req_hdr_size_from_pkt_entry(pkt_entry));
+	read_iov = (struct fi_rma_iov *)(pkt_entry->wiredata + 
+					 rxr_pkt_req_hdr_size_from_pkt_entry(pkt_entry));
 
 	rx_entry->tx_id = rtm_hdr->send_id;
 	rx_entry->rma_iov_count = rtm_hdr->read_iov_count;
@@ -1237,8 +1241,8 @@ ssize_t rxr_pkt_proc_matched_longread_rtm(struct rxr_ep *ep,
 	       rx_entry->rma_iov_count * sizeof(struct fi_rma_iov));
 
 	rxr_pkt_entry_release_rx(ep, pkt_entry);
-	rxr_tracepoint(longread_read_posted, rx_entry->msg_id,
-		    (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len);
+	rxr_tracepoint(longread_read_posted, 0, (size_t) rx_entry, rx_entry->msg_id,
+		       (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len);
 
 	return rxr_op_entry_post_remote_read_or_queue(rx_entry);
 }
@@ -1267,8 +1271,8 @@ ssize_t rxr_pkt_proc_matched_mulreq_rtm(struct rxr_ep *ep,
 			read_iov = (struct fi_rma_iov *)(pkt_entry->wiredata + rxr_pkt_req_hdr_size_from_pkt_entry(pkt_entry));
 			rx_entry->rma_iov_count = runtread_rtm_hdr->read_iov_count;
 			memcpy(rx_entry->rma_iov, read_iov, rx_entry->rma_iov_count * sizeof(struct fi_rma_iov));
-			rxr_tracepoint(runtread_read_posted, rx_entry->msg_id,
-				    (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len);
+			rxr_tracepoint(runtread_read_posted, 0, (size_t) rx_entry, rx_entry->msg_id,
+				       (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len);
 
 			err = rxr_op_entry_post_remote_read_or_queue(rx_entry);
 			if (err)

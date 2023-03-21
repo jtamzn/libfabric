@@ -257,9 +257,9 @@ ssize_t rxr_msg_generic_send(struct fid_ep *ep, const struct fi_msg *msg,
 
 	tx_entry->msg_id = peer->next_msg_id++;
 
-	rxr_tracepoint(send_begin, tx_entry->msg_id, 
+	rxr_tracepoint(send_begin, 0, (size_t) tx_entry, tx_entry->msg_id, 
 		    (size_t) tx_entry->cq_entry.op_context, tx_entry->total_len);
-	rxr_tracepoint(send_begin_msg_context, 
+	rxr_tracepoint(send_begin_msg_context,
 		    (size_t) msg->context, (size_t) msg->addr);
 
 
@@ -846,7 +846,7 @@ int rxr_msg_proc_unexp_msg_list(struct rxr_ep *ep, const struct fi_msg *msg,
 	 * TODO: Use a realiable way to trigger this function. Can we swap packet order with fake-rdma-core?
 	 * NOTE: Cannot trigger this routine, didn't debug.
 	 */
-	rxr_tracepoint(msg_match_unexpected, rx_entry->msg_id, 
+	rxr_tracepoint(msg_match_unexpected, 0, (size_t) rx_entry, rx_entry->msg_id, 
 		    (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len, 
 		    (int) tag, msg->addr);
 	/*
@@ -1069,7 +1069,7 @@ ssize_t rxr_msg_generic_recv(struct fid_ep *ep, const struct fi_msg *msg,
 	       __func__, rx_entry->total_len, tag, ignore,
 	       op, flags);
 
-	rxr_tracepoint(recv_begin, rx_entry->msg_id, 
+	rxr_tracepoint(recv_begin, 0, (size_t) rx_entry, rx_entry->msg_id, 
 		    (size_t) rx_entry->cq_entry.op_context, rx_entry->total_len);
 	rxr_tracepoint(recv_begin_msg_context, (size_t) msg->context, (size_t) msg->addr);
 

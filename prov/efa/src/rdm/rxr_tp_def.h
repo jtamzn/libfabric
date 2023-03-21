@@ -14,11 +14,15 @@
 /* Pre-defined tracepoints */
 
 #define X_ENTRY_ARGS \
+	size_t, wr_id, \
+	size_t, x_entry, \
 	int, msg_id, \
 	size_t, ctx, \
 	int, total_len
 
 #define X_ENTRY_FIELDS \
+	lttng_ust_field_integer_hex(size_t, wr_id, wr_id) \
+	lttng_ust_field_integer_hex(size_t, x_entry, x_entry) \
 	lttng_ust_field_integer(int, msg_id, msg_id) \
 	lttng_ust_field_integer_hex(size_t, ctx, ctx) \
 	lttng_ust_field_integer(int, total_len, total_len) 
@@ -131,8 +135,17 @@ LTTNG_UST_TRACEPOINT_LOGLEVEL(EFA_RDM_TP_PROV, read_completed, LTTNG_UST_TRACEPO
 
 LTTNG_UST_TRACEPOINT_EVENT(EFA_RDM_TP_PROV,
 	poll_cq,
-	LTTNG_UST_TP_ARGS(size_t, wr_id),
-	LTTNG_UST_TP_FIELDS(lttng_ust_field_integer_hex(size_t, wr_id, wr_id)))
+	LTTNG_UST_TP_ARGS(
+		char *, verb,
+		size_t, wr_id,
+		size_t, x_entry
+	),
+	LTTNG_UST_TP_FIELDS(
+		lttng_ust_field_string(verb, verb)
+		lttng_ust_field_integer_hex(size_t, wr_id, wr_id)
+		lttng_ust_field_integer_hex(size_t, x_entry, x_entry)
+	)
+)
 LTTNG_UST_TRACEPOINT_LOGLEVEL(EFA_RDM_TP_PROV, poll_cq, LTTNG_UST_TRACEPOINT_LOGLEVEL_INFO)
 
 

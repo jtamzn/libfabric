@@ -1815,7 +1815,6 @@ static inline void rdm_ep_poll_ibv_cq_ex(struct rxr_ep *ep, size_t cqe_to_proces
 	should_end_poll = !err;
 
 	while (!err) {
-		rxr_tracepoint(poll_cq, (size_t) ep->ibv_cq_ex->wr_id);
 		if (ep->ibv_cq_ex->status) {
 			pkt_entry = (void *)(uintptr_t)ep->ibv_cq_ex->wr_id;
 			prov_errno = ibv_wc_read_vendor_err(ep->ibv_cq_ex);
@@ -1837,10 +1836,14 @@ static inline void rdm_ep_poll_ibv_cq_ex(struct rxr_ep *ep, size_t cqe_to_proces
 			ep->send_comps++;
 #endif
 			pkt_entry = (void *)(uintptr_t)ep->ibv_cq_ex->wr_id;
+			rxr_tracepoint(poll_cq, "send", (size_t) ep->ibv_cq_ex->wr_id, 
+				       (size_t) pkt_entry->x_entry);
 			rxr_pkt_handle_send_completion(ep, pkt_entry);
 			break;
 		case IBV_WC_RECV:
 			pkt_entry = (void *)(uintptr_t)ep->ibv_cq_ex->wr_id;
+			rxr_tracepoint(poll_cq, "recv", (size_t) ep->ibv_cq_ex->wr_id, 
+				       (size_t) pkt_entry->x_entry);
 			pkt_entry->addr = efa_av_reverse_lookup_rdm(efa_av, ibv_wc_read_slid(ep->ibv_cq_ex),
 								ibv_wc_read_src_qp(ep->ibv_cq_ex), pkt_entry);
 
@@ -1856,8 +1859,15 @@ static inline void rdm_ep_poll_ibv_cq_ex(struct rxr_ep *ep, size_t cqe_to_proces
 #endif
 			break;
 		case IBV_WC_RDMA_READ:
+			pkt_entry = (void *)(uintptr_t)ep->ibv_cq_ex->wr_id;
+			rxr_tracepoint(poll_cq, "read", (size_t) ep->ibv_cq_ex->wr_id, 
+				       (size_t) pkt_entry->x_entry);
+			rxr_pkt_handle_rma_completion(ep, pkt_entry);
+			break;
 		case IBV_WC_RDMA_WRITE:
 			pkt_entry = (void *)(uintptr_t)ep->ibv_cq_ex->wr_id;
+			rxr_tracepoint(poll_cq, "write", (size_t) ep->ibv_cq_ex->wr_id, 
+				       (size_t) pkt_entry->x_entry);
 			rxr_pkt_handle_rma_completion(ep, pkt_entry);
 			break;
 		case IBV_WC_RECV_RDMA_WITH_IMM:
